@@ -58,13 +58,13 @@ if (scalar @errors) {
     print join("\n", @errors) . "\n";
     exit;
 }
-
 my $ph = BinaryPhaseCheck->new({
         symbol      => $symbol,
         short       => $short,
         long        => $long,
         path        => $path,
         result_path => $where,
-        period      => $interval
+        period      => $interval,
+        test        => 1
     })->run;
 

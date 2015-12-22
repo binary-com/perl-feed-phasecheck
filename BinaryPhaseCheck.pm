@@ -20,6 +20,8 @@ sub set {
                 $self->setPeriod($params->{$_});
             } elsif ($_ eq 'long') {
                 $self->setLong($params->{$_});
+            } elsif ($_ eq 'test') {
+                $self->{test} = 1;
             }
             delete $params->{$_};
         }
@@ -136,29 +138,67 @@ sub tail_idata {
         die();
     }
 
-    my $date = $self->_get_current_date;
-    my $path = "$self->{path}/idata/$self->{symbol}/$date-fullfeed.csv";
-
     my $interval = $self->{long};
-    if (!(-f $path)) {
-        return {};
-    }
-
-    open my $bw, "-|", "tail", "-r", $path;
 
     my %spots;
     my $last_epoch;
     my $spots = {};
-    while (my $line = <$bw>) {
-        chomp $line;
-        my @fields = split /\,/, $line;
-        $last_epoch = $fields[0] if !$last_epoch;
-        last if $fields[0] + $interval < $last_epoch;
-        next if $fields[6] && $fields[6] =~ /BADSRC/;
-        $spots->{$fields[5]} = {} if !$spots->{$fields[5]};
-        $spots->{$fields[5]}->{$fields[0]} = $fields[4];
+
+    if ($self->{test}) {
+        my $path = "/home/EUR-A0-Fx.log";
+
+        if (!(-f $path)) {
+            return {};
+        }
+
+        my $bw;
+        if (-e '/usr/bin/tac') {
+            open $bw, "-|", "tac", $path;
+        } else {
+            open $bw, "-|", "tail", "-r", $path;
+        }
+
+        my %spots;
+        my $last_epoch;
+        my $spots = {};
+        while (my $line = <$bw>) {
+            chomp $line;
+            my @fields = split /\,/, $line;
+
+            my ($year, $month, $day, $hours, $min, $sec) = split(/[\/: ]/, $fields[1]);
+            my $epoch = timegm($sec, $min, $hours, $day, $month, $year);
+            $last_epoch = $epoch if !$last_epoch;
+            last if $epoch + $interval < $last_epoch;
+            $spots->{$fields[4]} = {} if !$spots->{$fields[4]};
+            $spots->{$fields[4]}->{$epoch} = ($fields[5] + $fields[6]) / 2;
+        }
+        close $bw;
+    } else {
+        my $date = $self->_get_current_date;
+        my $path = "$self->{path}/idata/$self->{symbol}/$date-fullfeed.csv";
+
+        if (!(-f $path)) {
+            return {};
+        }
+
+        my $bw;
+        if (-e '/usr/bin/tac') {
+            open $bw, "-|", "tac", $path;
+        } else {
+            open $bw, "-|", "tail", "-r", $path;
+        }
+
+        while (my $line = <$bw>) {
+            chomp $line;
+            my @fields = split /\,/, $line;
+            $last_epoch = $fields[0] if !$last_epoch;
+            last if $fields[0] + $interval < $last_epoch;
+            next if $fields[6] && $fields[6] =~ /BADSRC/;
+            $spots->{$fields[5]} = {} if !$spots->{$fields[5]};
+            $spots->{$fields[5]}->{$fields[0]} = $fields[4];
+        }
+        close $bw;
     }
-    close $bw;
 
     return $spots;
 }
