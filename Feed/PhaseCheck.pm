@@ -212,10 +212,10 @@ sub calculate_error {
 }
 
 sub clean{
-    my $self = shift;
-    $self->{errors}       = {};
-    $self->{min_errors}   = {};
-    $self->{ticks_number} = {};
+	my $self = shift;
+	$self->{errors}       = {};
+	$self->{min_errors}   = {};
+	$self->{ticks_number} = {};
 }
 
 =head1 AUTHOR
