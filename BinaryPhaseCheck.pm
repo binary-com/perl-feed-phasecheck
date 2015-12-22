@@ -3,6 +3,7 @@ use warnings;
 
 package BinaryPhaseCheck;
 use base 'PhaseCheck';
+use DataDog::DogStatsd::Helper qw(stats_gauge);
 
 sub set {
     my ($self, $params) = @_;
@@ -78,6 +79,7 @@ sub run {
     while (1) {
         $self->calculate;
         $self->save_to_file;
+        $self->send_to_datadog;
         sleep $self->{period};
     }
 }
@@ -87,6 +89,20 @@ sub calculate {
     my $spots = $self->tail_idata;
     $self->SUPER::setSpots($spots);
     $self->SUPER::calculate_errors;
+}
+
+sub send_to_datadog {
+    my $self = shift;
+
+    my $last_epoch = $self->{last_ref_epoch} || '';
+
+    foreach (keys %{$self->{min_errors}}) {
+        if ($self->{ticks_number}->{$_}) {
+            my $error = $self->{errors}->{$_}->{0} - $self->{min_errors}->{$_}->{error};
+            stats_gauge('phase_delay', $self->{min_errors}->{$_}->{delay}, {tags => ['tag:' . $_]});
+            stats_gauge('phase_error', $error, {tags => ['tag:' . $underlying->{symbol}]});
+        }
+    }
 }
 
 sub save_to_file {
