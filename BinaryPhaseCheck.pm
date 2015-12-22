@@ -112,7 +112,8 @@ sub save_to_file {
     my $last_epoch = $self->{last_ref_epoch} || '';
     foreach (sort { $a cmp $b } keys %{$self->{min_errors}}) {
         if ($self->{ticks_number}->{$_}) {
-            print $fh "$_,$self->{min_errors}->{$_}->{delay},$self->{min_errors}->{$_}->{error},$self->{ticks_number}->{$_},$last_epoch\n";
+            my $error = $self->{errors}->{$_}->{0} - $self->{min_errors}->{$_}->{error};
+            print $fh "$_,$self->{min_errors}->{$_}->{delay},$error,$self->{ticks_number}->{$_},$last_epoch\n";
         }
     }
 
@@ -145,7 +146,7 @@ sub tail_idata {
     my $spots = {};
 
     if ($self->{test}) {
-    	use Time::Local;
+        use Time::Local;
         my $path = "/home/EUR-A0-FX2.log";
 
         if (!(-f $path)) {
@@ -164,7 +165,7 @@ sub tail_idata {
             my @fields = split /\,/, $line;
 
             my ($year, $month, $day, $hours, $min, $sec) = split(/[\/: ]/, $fields[1]);
-            my $epoch = Time::Local::timegm($sec, $min, $hours, $day, $month-1, $year);
+            my $epoch = Time::Local::timegm($sec, $min, $hours, $day, $month - 1, $year);
             $last_epoch = $epoch if !$last_epoch;
             last if $epoch + $interval < $last_epoch;
             $spots->{$fields[4]} = {} if !$spots->{$fields[4]};
