@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 use lib 'lib';
+use lib 'lib/Feed-PhaseCheck/lib';
+
 use BinaryPhaseCheck;
 
 my ($path, $long, $short, $symbol, $interval, $where);
