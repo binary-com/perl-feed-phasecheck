@@ -79,7 +79,7 @@ sub run {
     while (1) {
         $self->calculate;
         use Data::Dumper;
-        print Dumper $self->{errors};
+        print Dumper $self;
         $self->save_to_file;
         $self->send_to_datadog;
         sleep $self->{period};
