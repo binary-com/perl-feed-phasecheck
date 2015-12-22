@@ -100,7 +100,7 @@ sub send_to_datadog {
         if ($self->{ticks_number}->{$_}) {
             my $error = $self->{errors}->{$_}->{0} - $self->{min_errors}->{$_}->{error};
             stats_gauge('phase_delay', $self->{min_errors}->{$_}->{delay}, {tags => ['tag:' . $_]});
-            stats_gauge('phase_error', $error, {tags => ['tag:' . $underlying->{symbol}]});
+            stats_gauge('phase_error', $error, {tags => ['tag:' . $_]});
         }
     }
 }
