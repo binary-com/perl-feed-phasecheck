@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 package BinaryPhaseCheck;
-use lib '/home/maksym/perl-feed-phasecheck/lib';
+use lib 'Feed-PhaseCheck/lib/Feed';
 use base 'Feed::PhaseCheck';
 use DataDog::DogStatsd::Helper qw(stats_gauge);
 
