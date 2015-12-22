@@ -167,7 +167,7 @@ sub tail_idata {
             my @fields = split /\,/, $line;
 
             my ($year, $month, $day, $hours, $min, $sec) = split(/[\/: ]/, $fields[1]);
-            my $epoch = Time::Local::timegm($sec, $min, $hours, $day, $month, $year);
+            my $epoch = Time::Local::timegm($sec, $min, $hours, $day, $month-1, $year);
             $last_epoch = $epoch if !$last_epoch;
             last if $epoch + $interval < $last_epoch;
             $spots->{$fields[4]} = {} if !$spots->{$fields[4]};
