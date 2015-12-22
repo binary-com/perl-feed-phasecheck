@@ -163,7 +163,7 @@ sub tail_idata {
 
     if ($self->{test}) {
         use Time::Local;
-        my $path = "/home/EUR-A0-FX2.log";
+        my $path = "/home/EUR-A0-FX3.log";
 
         if (!(-f $path)) {
             return {};
