@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 package BinaryPhaseCheck;
+use lib '../lib';
 use base 'Feed::PhaseCheck';
 use DataDog::DogStatsd::Helper qw(stats_gauge);
 
