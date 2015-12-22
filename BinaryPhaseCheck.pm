@@ -145,7 +145,7 @@ sub tail_idata {
     my $spots = {};
 
     if ($self->{test}) {
-    	require Time::Local;
+    	use Time::Local;
         my $path = "/home/EUR-A0-Fx.log";
 
         if (!(-f $path)) {
@@ -167,7 +167,7 @@ sub tail_idata {
             my @fields = split /\,/, $line;
 
             my ($year, $month, $day, $hours, $min, $sec) = split(/[\/: ]/, $fields[1]);
-            my $epoch = timegm($sec, $min, $hours, $day, $month, $year);
+            my $epoch = Time::Local::timegm($sec, $min, $hours, $day, $month, $year);
             $last_epoch = $epoch if !$last_epoch;
             last if $epoch + $interval < $last_epoch;
             $spots->{$fields[4]} = {} if !$spots->{$fields[4]};
