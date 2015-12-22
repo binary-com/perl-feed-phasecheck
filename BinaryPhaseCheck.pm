@@ -159,9 +159,6 @@ sub tail_idata {
             open $bw, "-|", "tail", "-r", $path;
         }
 
-        my %spots;
-        my $last_epoch;
-        my $spots = {};
         while (my $line = <$bw>) {
             chomp $line;
             my @fields = split /\,/, $line;
