@@ -145,6 +145,7 @@ sub tail_idata {
     my $spots = {};
 
     if ($self->{test}) {
+    	require Time::Local;
         my $path = "/home/EUR-A0-Fx.log";
 
         if (!(-f $path)) {
