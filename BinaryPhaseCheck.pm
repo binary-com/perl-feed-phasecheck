@@ -87,7 +87,7 @@ sub run {
 sub calculate {
     my $self  = shift;
     my $spots = $self->tail_idata;
-    $self->SUPER::setSpots($spots);
+    $self->SUPER::set_spots($spots);
     $self->SUPER::calculate_errors;
 }
 
