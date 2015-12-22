@@ -200,7 +200,8 @@ sub tail_idata {
         }
         close $bw;
     }
-
+    use Data::Dumper;
+    print Dumper $spots;
     return $spots;
 }
 
