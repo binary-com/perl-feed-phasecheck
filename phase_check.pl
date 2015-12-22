@@ -69,8 +69,8 @@ my $ph = BinaryPhaseCheck->new({
         result_path => $where,
         period      => $interval,
         test        => 1
-    })->calculate;
-
+    });
+$ph->calculate;
 use Data::Dumper;
 print Dumper $ph;
 
