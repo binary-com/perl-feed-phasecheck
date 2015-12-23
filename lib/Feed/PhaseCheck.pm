@@ -25,7 +25,7 @@ Accomplished by shifting one feed relative to the other and then computing the e
 The shift that yields the lowest error corresponds to the relative delay between he two input feeds.  
 
 The output consists of the delay found, and the error in delayed point.
-Þ
+
 =cut
 
 sub new {
