@@ -6,7 +6,7 @@ use warnings;
 
 =head1 NAME
 
-Feed::PhaseCheck - The great new Feed::PhaseCheck!
+Feed::PhaseCheck
 
 =head1 VERSION
 
@@ -18,23 +18,14 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Determines the relative shift in time between two segments of feed. 
+Finds the relative time delay between two feed segments.  
 
-Accomplished by shifting one feed relative to the other and the calculating the error.  
+Accomplished by shifting one feed relative to the other and then computing the error (absolute difference).  
 
-The shift with the minimum error corresponds to the shift in the feeds.  
+The shift that yields the lowest error corresponds to the relative delay between he two input feeds.  
 
-The algorithm outputs both the shift and the improvement in the error compared to the reference of 0 shift.
-
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
-
-=head1 SUBROUTINES/METHODS
-
-=head2 function1
-
+The output consists of the delay found, and the error in delayed point.
+Þ
 =cut
 
 sub new {
