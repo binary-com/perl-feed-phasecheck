@@ -4,6 +4,10 @@ use 5.006;
 use strict;
 use warnings;
 
+use Exporter qw(import);
+
+our @EXPORT_OK = qw(compare_feeds);
+
 =head1 NAME
 
 Feed::PhaseCheck
@@ -28,218 +32,77 @@ The output consists of the delay found, and the error in delayed point.
 
 =cut
 
-sub new {
-    my ($class, $args) = @_;
-    my $self = bless {}, $class;
-    $self->set($args);
-    $self->clean;
-    return $self;
-}
+sub compare_feeds {
+    my $sample          = shift;
+    my $main            = shift;
+    my $max_delay_check = shift || 0;
 
-sub set {
-    my ($self, $params) = @_;
-    if (ref $params eq 'HASH') {
-        foreach (keys %$params) {
-            if ($_ eq 'spots') {
-                $self->set_spots($params->{$_});
-                delete $params->{$_};
-            } elsif ($_ eq 'ref') {
-                $self->set_ref($params->{$_});
-                delete $params->{$_};
-            } elsif ($_ eq 'short') {
-                $self->set_short($params->{$_});
-                delete $params->{$_};
-            }
-        }
-    }
-}
-
-sub set_spots {
-    my ($self, $spots) = @_;
-    if (ref $spots ne 'HASH') {
-        return;
-    }
-    $self->{spots} = $spots;
-    $self->clean;
-    return $self->{spots};
-}
-
-sub set_ref {
-    my ($self, $ref) = @_;
-    if ($ref && !ref($ref) && $ref =~ /^[a-z0-9_-]+$/i) {
-        $self->{ref} = $ref;
-        $self->{_ref} = {};
-        $self->clean;
-    }
-    return $self->{ref};
-}
-
-sub set_short {
-    my ($self, $short) = @_;
-    if ($short && !ref($short) && $short =~ /^[0-9]+$/) {
-        $self->{short} = $short;
-        $self->clean;
-    }
-    return $self->{short};
-}
-
-sub list_errors {
-    my ($self, $provider) = @_;
-
-    if ($self->{errors}) {
-        $self->calculate_errors;
-    }
-
-    if ($provider) {
-        return $self->{errors}->{$provider};
-    } else {
-        return $self->{errors};
-    }
-}
-
-sub list_min_errors {
-    my ($self, $provider) = @_;
-
-    if ($self->{errors}) {
-        $self->calculate_errors;
-    }
-
-    if ($provider) {
-        return $self->{min_errors}->{$provider};
-    } else {
-        return $self->{min_errors};
-    }
-}
-
-sub calculate_for_all {
-    my $self = shift;
-
-    my @errors;
-    unless (ref $self->{spots} eq 'HASH') {
-        push @errors, "Spots are needed!";
-    }
-    unless ($self->{short}) {
-        push @errors, "Short period is needed!";
-    }
-    unless ($self->{ref}) {
-        push @errors, "Ref provider's name is needed!";
-    }
-
-    if (scalar @errors) {
-        print join("\n", @errors) . "\n";
-        die();
-    }
-
-    $self->clean;
-
-    foreach my $provider (keys %{$self->{spots}}) {
-        next if $provider eq $self->{ref};
-        my $result = $self->calculate_for_provider($provider);
-        if(ref $result eq 'HASH'){
-            $self->{errors}->{$provider} = $result->{errors};
-            $self->{min_errors}->{$provider} = {
-                error => $result->{min_error},
-                delay => $result->{min_delay},
-            };
-            $self->{spots_number}->{$provider} = $result->{spots_number};
-        }
-    }
-    return ($self->{errors}, $self->{min_errors});
-}
-
-sub calculate_for_provider {
-    my ($self, $sample_name) = @_;
-
-    if (!$sample_name) {
+    if ($max_delay_check !~ /^\d+$/) {
         return;
     }
 
-    if (ref $self->{spots} ne 'HASH') {
+    if (ref $sample ne 'HASH' || scalar keys %$sample < 2) {
         return;
     }
 
-    if (!$self->{ref} || !$self->{spots}->{$self->{ref}}) {
+    if (ref $main ne 'HASH' || scalar keys %$main < 2) {
         return;
     }
 
-    my $sample_full = $self->{spots}->{$sample_name};
-    if (!$sample_full) {
-        return;
-    }
-
-    if (!$self->{short}) {
-        return;
-    }
-
-    if (!$self->{_ref} || !scalar keys %{$self->{_ref}}) {
-        $self->{_ref} = {
-            epoches => [sort(keys %{$self->{spots}->{$self->{ref}}})],
-            spots   => $self->{spots}->{$self->{ref}}};
-    }
-    my $ref = $self->{_ref};
-
-    my $first_ref_epoch = $ref->{epoches}->[0];
-    my $last_ref_epoch  = $ref->{epoches}->[-1];
-    my $delay           = int(($ref->{epoches}->[-1] - $ref->{epoches}->[0] - $self->{short}) / 2);
-
-    my %spots;
-    foreach my $e (keys %$sample_full) {
-        if ($e >= $first_ref_epoch + $delay && $e <= $last_ref_epoch - $delay) {
-            $spots{$e} = $sample_full->{$e};
+    my @main_epoches = sort keys %$main;
+    foreach (@main_epoches) {
+        if (int($_) != $_ || abs($main->{$_}) != $main->{$_}) {
+            return;
         }
     }
 
-    if (!scalar(keys %spots)) {
+    my @sample_epoches = sort keys %$sample;
+    foreach (@sample_epoches) {
+        if (int($_) != $_ || abs($sample->{$_}) != $sample->{$_}) {
+            return;
+        }
+    }
+
+    if ($sample_epoches[0] < $main_epoches[0] || $sample_epoches[-1] > $main_epoches[-1]) {
         return;
     }
 
-    my $sample = {
-        epoches => [sort keys %spots],
-        spots   => \%spots
-    };
-
-    my $errors = {};
-    my ($min_error_delay, $min_error);
-    my $long = $ref->{epoches}->[-1] - $ref->{epoches}->[0];
-    for (my $delay = -int(($long - $self->{short}) / 2); $delay <= int(($long - $self->{short}) / 2); $delay++) {
-        my $error = 0;
-        foreach my $epoch (@{$sample->{epoches}}) {
+    my %main = %$main;
+    my %error = ();
+    my ($min_error, $delay_for_min_error);
+    for (
+        my $delay = ($max_delay_check <= $sample_epoches[0] - $main_epoches[0] ? -$max_delay_check : -($sample_epoches[0] - $main_epoches[0]));
+        $delay <= ($max_delay_check <= $main_epoches[-1] - $sample_epoches[-1] ? $max_delay_check : $main_epoches[-1] - $sample_epoches[-1]);
+        $delay++
+        )
+    {
+        $error{$delay} = 0;
+        foreach my $epoch (@sample_epoches) {
             my $sample_epoch = $epoch - $delay;
-            my $ref_value;
-            if (!$ref->{spots}->{$sample_epoch}) {
-                for (my $i = 1; $i < scalar @{$ref->{epoches}}; $i++) {
-                    if ($ref->{epoches}->[$i] > $sample_epoch) {
-                        $ref->{spots}->{$sample_epoch} =
-                            $ref->{spots}->{$ref->{epoches}->[$i - 1]} +
-                            ($sample_epoch - $ref->{epoches}->[$i - 1]) *
-                            ($ref->{spots}->{$ref->{epoches}->[$i]} - $ref->{spots}->{$ref->{epoches}->[$i - 1]}) /
-                            ($ref->{epoches}->[$i] - $ref->{epoches}->[$i - 1]);
+            if (!defined $main{$sample_epoch}) {
+                for (my $i = 1; $i < scalar keys @main_epoches; $i++) {
+                    if ($main_epoches[$i] > $sample_epoch) {
+                        $main{$sample_epoch} =
+                            _interpolate($main_epoches[$i - 1], $main{$main_epoches[$i - 1]}, $main_epoches[$i], $main{$main_epoches[$i]}, $sample_epoch);
                         last;
                     }
                 }
             }
-            $error += ($ref->{spots}->{$sample_epoch} - $sample->{spots}->{$epoch})**2;
+            $error{$delay} += ($main{$sample_epoch} - $sample->{$epoch})**2;
         }
-        $errors->{$delay} = $error;
-        if (!defined($min_error) || $min_error > $error) {
-            $min_error       = $error;
-            $min_error_delay = $delay;
+        if (!$min_error || $error{$delay} < $min_error) {
+            $min_error           = $error{$delay};
+            $delay_for_min_error = $delay;
         }
     }
 
-    return {
-        errors => $errors,
-        min_delay => $min_error_delay,
-        min_error => $min_error,
-        spots_number => scalar(keys %spots)
-    };
+    return (\%error, $delay_for_min_error);
 }
 
-sub clean {
-    my $self = shift;
-    $self->{errors}       = {};
-    $self->{min_errors}   = {};
-    $self->{spots_number} = {};
+sub _interpolate {
+    my ($x1, $y1, $x2, $y2, $x) = @_;
+    my $y = $y1 + ($x - $x1) * ($y2 - $y1) / ($x2 - $x1);
+    return $y;
 }
 
 =head1 AUTHOR
