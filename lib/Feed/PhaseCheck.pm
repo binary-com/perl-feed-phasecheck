@@ -67,23 +67,24 @@ sub compare_feeds {
         return;
     }
 
-    my %main = %$main;
+    my %main  = %$main;
     my %error = ();
     my ($min_error, $delay_for_min_error);
-    for (
-        my $delay = ($max_delay_check <= $sample_epoches[0] - $main_epoches[0] ? -$max_delay_check : -($sample_epoches[0] - $main_epoches[0]));
-        $delay <= ($max_delay_check <= $main_epoches[-1] - $sample_epoches[-1] ? $max_delay_check : $main_epoches[-1] - $sample_epoches[-1]);
-        $delay++
-        )
-    {
+    my $delay1 = $sample_epoches[0] - $main_epoches[0] < $max_delay_check   ? $sample_epoches[0] - $main_epoches[0]   : $max_delay_check;
+    my $delay2 = $main_epoches[-1] - $sample_epoches[-1] < $max_delay_check ? $main_epoches[-1] - $sample_epoches[-1] : $max_delay_check;
+    for (my $delay = -$delay1; $delay <= $delay2; $delay++) {
         $error{$delay} = 0;
         foreach my $epoch (@sample_epoches) {
             my $sample_epoch = $epoch - $delay;
             if (!defined $main{$sample_epoch}) {
                 for (my $i = 1; $i < scalar keys @main_epoches; $i++) {
                     if ($main_epoches[$i] > $sample_epoch) {
-                        $main{$sample_epoch} =
-                            _interpolate($main_epoches[$i - 1], $main{$main_epoches[$i - 1]}, $main_epoches[$i], $main{$main_epoches[$i]}, $sample_epoch);
+                        $main{$sample_epoch} = _interpolate(
+                            $main_epoches[$i - 1],
+                            $main{$main_epoches[$i - 1]},
+                            $main_epoches[$i], $main{$main_epoches[$i]},
+                            $sample_epoch
+                        );
                         last;
                     }
                 }
