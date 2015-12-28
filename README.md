@@ -1,6 +1,6 @@
 # Feed::PhaseCheck
 
-An object oriented module that finds the relative time delay between two feed segments.  
+Module that finds the relative time delay between two feed segments.  
 
 Accomplished by shifting one feed relative to the other and then computing the error (absolute difference).  
 
