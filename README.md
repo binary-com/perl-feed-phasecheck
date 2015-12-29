@@ -8,7 +8,7 @@ The shift that yields the lowest error corresponds to the relative delay between
 
 The output consists of the delay found, and the error in delayed point.
 
-Module has only one fucntion **compare_feeds**.
+Module has only one function **compare_feeds**.
 
 ### Usage:
 ```perl
