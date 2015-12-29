@@ -28,5 +28,5 @@ my $compare_to = {
     "1451276792" => "1.097595"
 }
 my $max_delay_check = 30;    # seconds
-my ($errors,$delay_with_min_err) = compare_feeds($sample,$main,$max_delay_check);
+my ($errors,$delay_with_min_err) = compare_feeds($sample,$compare_to,$max_delay_check);
 ```
