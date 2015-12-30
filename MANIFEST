@@ -1,9 +1,15 @@
+.travis.yml
 Changes
 lib/Feed/PhaseCheck.pm
+LICENSE
 Makefile.PL
 MANIFEST			This list of files
 README
+README.md
 t/00-load.t
+t/01-basic.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t
+t/result-hash.pl
+xt/boilerplate.t
