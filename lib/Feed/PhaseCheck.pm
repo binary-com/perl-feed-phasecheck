@@ -113,7 +113,7 @@ sub compare_feeds {
             $min_error           = $error{$delay};
             $delay_for_min_error = $delay;
         }
-        $error{$delay} =~ s/(\d{4}).+?e/$1e/;
+        # $error{$delay} =~ s/(\d{8}).+?e/$1e/;
     }
 
     return (\%error, $delay_for_min_error);
