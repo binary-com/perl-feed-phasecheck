@@ -22,11 +22,11 @@ The output consists of the delay found, and the error in delayed point.
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 SYNOPSIS
 
@@ -113,6 +113,7 @@ sub compare_feeds {
             $min_error           = $error{$delay};
             $delay_for_min_error = $delay;
         }
+        $error{$delay} =~ s/(\d{4}).+?e/$1e/;
     }
 
     return (\%error, $delay_for_min_error);
