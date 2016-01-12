@@ -95,7 +95,7 @@ sub compare_feeds {
         foreach my $epoch (@sample_epoches) {
             my $sample_epoch = $epoch - $delay;
             if (!defined $main{$sample_epoch}) {
-                for (my $i = 1; $i < scalar keys @main_epoches; $i++) {
+                for (my $i = 1; $i < scalar @main_epoches; $i++) {
                     if ($main_epoches[$i] > $sample_epoch) {
                         $main{$sample_epoch} = _interpolate(
                             $main_epoches[$i - 1],
