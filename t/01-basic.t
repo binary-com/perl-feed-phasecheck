@@ -1,4 +1,5 @@
 use Test::More;
+use POSIX qw( strtod );
 use Feed::PhaseCheck qw(compare_feeds);
 use strict;
 use warnings;
@@ -259,7 +260,47 @@ my $result = {
 my $max_delay_check = 30;    # seconds
 my ($errors, $delay) = compare_feeds($sample, $main, $max_delay_check);
 
-# ok(eq_hash($errors, $result) && $delay == 0, 'Calculation is correct!');
-use Data::Dumper;
-ok(eq_hash($errors, $result) && $delay == 0, Dumper($errors));
+foreach (keys %$result) {
+    is_approx_num($result->{$_}, $errors->{$_}, 'Error Calculation Failed', '0.00000001%');
+}
 done_testing();
+
+sub is_approx_num {
+    my ($num1, $num2, $msg, $tolerance) = @_;
+
+    # clean input & avoid warnings
+    $num1 = strtod(defined $num1 ? $num1 : '');    # ignore any errors
+    $num2 = strtod(defined $num2 ? $num2 : '');    # ignore any errors
+    $tolerance = '5%' unless defined($tolerance);
+
+    # build some diagnostics info
+    my $short1 = length($num1) > 8 ? substr($num1, 0, 5) . '...' : $num1;
+    my $short2 = length($num2) > 8 ? substr($num2, 0, 5) . '...' : $num2;
+    my $msg2   = "'$short1' =~ '$short2'";
+
+    # set default message
+    $msg = $msg2 unless defined($msg);
+
+    # figure out what to use as the threshold
+    my $threshold;
+    if ($tolerance =~ /^(.+)%$/) {
+        # tolerance is a percentage
+        my $percent = $1 / 100;
+        # calculate threshold from a percentage: x% of num1
+        # strtod() to get around weird bug:
+        # $dist = 0.05; $threshold = 0.05; $dist <= $threshold; # false ??!?
+        $threshold = strtod(abs($num1 * $percent));
+    } else {
+        # tolerance is already a threshold
+        $threshold = $tolerance;
+    }
+
+    # we've got a threshold, now do the test:
+    # strtod() to get around weird bug:
+    # $dist = 0.05; $threshold = 0.05; $dist <= $threshold; # false ??!?
+    my $dist = strtod(abs($num2 - $num1));
+    unless (ok($dist <= $threshold, $msg)) {
+        diag("  test: $msg2") if ($msg ne $msg2);
+        diag("  error: distance ($dist) was greater than threshold ($threshold)");
+    }
+}
