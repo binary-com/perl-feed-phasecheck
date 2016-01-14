@@ -1,6 +1,8 @@
 .travis.yml
 Changes
 Feed-PhaseCheck-0.02.tar.gz
+Feed-PhaseCheck-0.04.tar.gz
+Feed-PhaseCheck-0.05_1.tar.gz
 lib/Feed/PhaseCheck.pm
 LICENSE
 Makefile.PL
