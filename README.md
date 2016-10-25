@@ -1,5 +1,8 @@
 # Feed::PhaseCheck
 
+[![Build Status](https://travis-ci.org/binary-com/perl-feed-phasecheck.svg?branch=master)](https://travis-ci.org/binary-com/perl-feed-phasecheck)
+[![codecov](https://codecov.io/gh/binary-com/perl-feed-phasecheck/branch/master/graph/badge.svg)](https://codecov.io/gh/binary-com/perl-feed-phasecheck)
+
 Module that finds the relative time delay between two feed segments.  
 
 Accomplished by shifting one feed relative to the other and then computing the error (absolute difference).  
