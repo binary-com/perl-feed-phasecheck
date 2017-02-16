@@ -32,19 +32,25 @@ our $VERSION = '0.05';
     my $sample = {
         "1451276654" => "1.097655",
         "1451276655" => "1.09765",
-        ...
+        #...
         "1451276763" => "1.0976",
         "1451276764" => "1.097595"
     };
     my $compare_to = {
         "1451276629" => "1.09765",
         "1451276630" => "1.09764916666667",
-        ...
+        #...
         "1451276791" => "1.097595",
         "1451276792" => "1.097595"
-    }
+    };
     my $max_delay_check = 30;    # seconds
     my ($errors,$delay_with_min_err) = compare_feeds($sample,$compare_to,$max_delay_check);
+
+=cut
+
+=head1 METHODS
+
+=head2 compare_feeds
 
 =cut
 
