@@ -88,7 +88,6 @@ sub compare_feeds {
     if ($sample_epoches[0] < $main_epoches[0] || $sample_epoches[-1] > $main_epoches[-1]) {
         return;
     }
-    print "Not Done";
     my %main  = %$main;
     my %error = ();
     my ($min_error, $delay_for_min_error);
