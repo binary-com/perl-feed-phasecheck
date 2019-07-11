@@ -88,7 +88,7 @@ sub compare_feeds {
     if ($sample_epoches[0] < $main_epoches[0] || $sample_epoches[-1] > $main_epoches[-1]) {
         return;
     }
-
+    print "Not Done";
     my %main  = %$main;
     my %error = ();
     my ($min_error, $delay_for_min_error);
@@ -97,7 +97,7 @@ sub compare_feeds {
     for (my $delay = -$delay1; $delay <= $delay2; $delay++) {
         $error{$delay} = 0;
         foreach my $epoch (@sample_epoches) {
-            my $sample_epoch = $epoch - $delay;
+            my $sample_epoch = $epoch + $delay;
             if (!defined $main{$sample_epoch}) {
                 for (my $i = 1; $i < scalar keys @main_epoches; $i++) {
                     if ($main_epoches[$i] > $sample_epoch) {
