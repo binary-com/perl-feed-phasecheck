@@ -1,5 +1,6 @@
 Revision history for Feed-PhaseCheck
 {{$NEXT}}
+       Add critic test
 
 0.06      2017-02-20 06:23:56+00:00 UTC
        switch to dzil
