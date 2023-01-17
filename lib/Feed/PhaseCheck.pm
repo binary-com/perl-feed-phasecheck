@@ -24,7 +24,7 @@ The output consists of the delay found, and the error in delayed point.
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 SYNOPSIS
 
